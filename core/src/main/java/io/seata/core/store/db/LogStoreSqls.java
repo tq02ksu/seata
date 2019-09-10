@@ -119,13 +119,11 @@ public class LogStoreSqls {
                     + " order by " + ServerTableColumnsName.GLOBAL_TABLE_GMT_MODIFIED + " limit ?";
 
     public static final String QUERY_GLOBAL_TRANSACTION_BY_STATUS_ORACLE =
-            "select * from ("
-                    + "  select tt.*, ROWNUM as rowno from ("
-                    + "    select " + ALL_GLOBAL_COLUMNS + " from " + GLOBAL_TABLE_PLACEHOLD
-                    + "    where " + ServerTableColumnsName.GLOBAL_TABLE_STATUS + " in (" + PRAMETER_PLACEHOLD + ")"
-                    + "    order by " + ServerTableColumnsName.GLOBAL_TABLE_GMT_MODIFIED + ") tt"
-                    + "  where ROWNUM <= ?) table_alias"
-                    + " where table_alias.rowno >= 0";
+            "select t.* from ("
+                    + "  select " + ALL_GLOBAL_COLUMNS + " from " + GLOBAL_TABLE_PLACEHOLD
+                    + "  where " + ServerTableColumnsName.GLOBAL_TABLE_STATUS + " in (" + PRAMETER_PLACEHOLD + ")"
+                    + "  order by " + ServerTableColumnsName.GLOBAL_TABLE_GMT_MODIFIED + ") t"
+                    + "where ROWNUM <= ?)";
     /**
      * The constant QUERY_GLOBAL_TRANSACTION_FOR_RECOVERY_MYSQL.
      */
@@ -267,7 +265,9 @@ public class LogStoreSqls {
      */
     public static String getQueryGlobalTransactionSQLByStatus(String globalTable, String dbType,
                                                               String paramsPlaceHolder) {
-        if (DBType.MYSQL.name().equalsIgnoreCase(dbType)) {
+        if (DBType.MYSQL.name().equalsIgnoreCase(dbType)
+            || DBType.OCEANBASE.name().equalsIgnoreCase(dbType)
+            || DBType.H2.name().equalsIgnoreCase(dbType)) {
             return QUERY_GLOBAL_TRANSACTION_BY_STATUS_MYSQL.replace(GLOBAL_TABLE_PLACEHOLD, globalTable).replace(
                     PRAMETER_PLACEHOLD, paramsPlaceHolder);
         } else if (DBType.ORACLE.name().equalsIgnoreCase(dbType)) {
